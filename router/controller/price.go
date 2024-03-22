@@ -6,8 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
+	"github.com/wonwooseo/panawa/pkg/code"
 
-	"github.com/wonwooseo/panawa-api/code"
 	"github.com/wonwooseo/panawa-api/pkg/db"
 	rerr "github.com/wonwooseo/panawa-api/router/errors"
 )

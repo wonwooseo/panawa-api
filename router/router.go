@@ -3,9 +3,9 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
+	"github.com/wonwooseo/panawa/pkg/code"
+	kokr "github.com/wonwooseo/panawa/pkg/code/ko/kr"
 
-	"github.com/wonwooseo/panawa-api/code"
-	kokr "github.com/wonwooseo/panawa-api/code/ko/kr"
 	"github.com/wonwooseo/panawa-api/pkg/db"
 	"github.com/wonwooseo/panawa-api/pkg/db/mock"
 	"github.com/wonwooseo/panawa-api/router/controller"
