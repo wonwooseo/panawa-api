@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
 	"net/http"
 	"os"
 	"os/signal"
@@ -10,13 +11,21 @@ import (
 	"time"
 
 	"github.com/rs/zerolog/log"
+	"github.com/spf13/viper"
 
 	"github.com/wonwooseo/panawa-api/router"
 )
 
 func main() {
+	cfgF := flag.String("config", "", "path to config file")
+
 	baseLogger := log.Logger
 	logger := baseLogger.With().Str("caller", "main").Logger()
+
+	viper.AddConfigPath(*cfgF)
+	if err := viper.ReadInConfig(); err != nil {
+		logger.Fatal().Err(err).Msg("failed to read in config")
+	}
 
 	srv := &http.Server{
 		Addr:         ":80",
