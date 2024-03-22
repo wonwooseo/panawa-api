@@ -24,8 +24,3 @@ type PricePerDate struct {
 	Price
 	Date string `json:"date"`
 }
-
-type PricePerRegion struct {
-	Price
-	PerMarket map[string]Price `json:"per_market"`
-}

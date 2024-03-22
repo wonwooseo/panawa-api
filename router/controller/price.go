@@ -135,12 +135,6 @@ func (c *PriceController) RegionalPriceEndpoint(ctx *gin.Context) {
 		return
 	}
 
-	regionalPrice, err := c.repo.GetRegionalPrice(ctx, now, itemCode, regionCode)
-	if err != nil {
-		c.logger.Error().Err(err).Str("item_code", itemCode).Str("region_code", regionCode).Msg("failed to get regional price")
-		ctx.JSON(rerr.NewInternalServerError())
-		return
-	}
 	marketPrices, err := c.repo.GetRegionalMarketPrices(ctx, now, itemCode, regionCode)
 	if err != nil {
 		c.logger.Error().Err(err).Str("item_code", itemCode).Str("region_code", regionCode).Msg("failed to get regional market prices")
@@ -160,12 +154,5 @@ func (c *PriceController) RegionalPriceEndpoint(ctx *gin.Context) {
 		}
 	}
 
-	ctx.JSON(http.StatusOK, PricePerRegion{
-		Price: Price{
-			Low:     regionalPrice.Low,
-			Average: regionalPrice.Average,
-			High:    regionalPrice.High,
-		},
-		PerMarket: perMarket,
-	})
+	ctx.JSON(http.StatusOK, perMarket)
 }

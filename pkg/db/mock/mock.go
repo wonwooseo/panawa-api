@@ -52,17 +52,6 @@ func (r *MockRepository) GetDateRangePrices(ctx context.Context, sDate, eDate ti
 	}}, nil
 }
 
-func (r *MockRepository) GetRegionalPrice(ctx context.Context, date time.Time, item, region string) (*model.Price, error) {
-	return &model.Price{
-		ItemCode:   "0000",
-		Low:        800,
-		Average:    1000,
-		High:       1500,
-		RegionCode: &region,
-		UpdateTime: time.Date(2024, 3, 22, 6, 0, 0, 0, time.UTC),
-	}, nil
-}
-
 func (r *MockRepository) GetRegionalMarketPrices(ctx context.Context, date time.Time, item, region string) ([]*model.Price, error) {
 	market1 := "01"
 	market2 := "02"
