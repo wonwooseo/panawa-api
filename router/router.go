@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/wonwooseo/panawa/pkg/code"
-	kokr "github.com/wonwooseo/panawa/pkg/code/ko/kr"
+	"github.com/wonwooseo/panawa/pkg/code/ko"
 
 	"github.com/wonwooseo/panawa-api/pkg/db"
 	"github.com/wonwooseo/panawa-api/pkg/db/mock"
@@ -20,9 +20,9 @@ func NewRouter(baseLogger zerolog.Logger) *gin.Engine {
 	// TODO: middlewares?
 
 	// code-locale resolvers
-	var itemCodeResolver code.Resolver = kokr.NewItemCodeResolver()
-	var regionCodeResolver code.Resolver = kokr.NewRegionCodeResolver()
-	var marketCodeResolver code.Resolver = kokr.NewMarketCodeResolver()
+	var itemCodeResolver code.Resolver = ko.NewItemCodeResolver()
+	var regionCodeResolver code.Resolver = ko.NewRegionCodeResolver()
+	var marketCodeResolver code.Resolver = ko.NewMarketCodeResolver()
 
 	// admin endpoints
 	adminCtrl := controller.NewAdminController(baseLogger)

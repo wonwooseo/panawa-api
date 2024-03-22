@@ -6,7 +6,7 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/rs/zerolog v1.32.0
 	github.com/spf13/viper v1.18.2
-	github.com/wonwooseo/panawa v0.0.0
+	github.com/wonwooseo/panawa v0.0.1
 )
 
 require (

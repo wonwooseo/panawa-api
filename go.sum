@@ -110,8 +110,8 @@ github.com/twitchyliquid64/golang-asm v0.15.1 h1:SU5vSMR7hnwNxj24w34ZyCi/FmDZTkS
 github.com/twitchyliquid64/golang-asm v0.15.1/go.mod h1:a1lVb/DtPvCB8fslRZhAngC2+aY1QWCk3Cedj/Gdt08=
 github.com/ugorji/go/codec v1.2.12 h1:9LC83zGrHhuUA9l16C9AHXAqEV/2wBQ4nkvumAE65EE=
 github.com/ugorji/go/codec v1.2.12/go.mod h1:UNopzCgEMSXjBc6AOMqYvWC1ktqTAfzJZUZgYf6w6lg=
-github.com/wonwooseo/panawa v0.0.0 h1:fW7FL1YH1XnGasMnIDi1lSfoLbVYmNYIZy3F67AjWZ4=
-github.com/wonwooseo/panawa v0.0.0/go.mod h1:KLt054+6EKKKRG9fmmCq0cCktcy6yDuoIj4LMZ8Fk3c=
+github.com/wonwooseo/panawa v0.0.1 h1:wpKnC05f5mn7eHIsgCh2Rw3kziG2SPb10YQNHoIN5+g=
+github.com/wonwooseo/panawa v0.0.1/go.mod h1:KLt054+6EKKKRG9fmmCq0cCktcy6yDuoIj4LMZ8Fk3c=
 go.uber.org/atomic v1.9.0 h1:ECmE8Bn/WFTYwEW/bpKD3M8VtR/zQVbavAoalC1PYyE=
 go.uber.org/atomic v1.9.0/go.mod h1:fEN4uk6kAWBTFdckzkM89CLk9XfWZrxpCo0nPH17wJc=
 go.uber.org/multierr v1.9.0 h1:7fIwc/ZtS0q++VgcfqFDxSBZVv/Xo49/SYnDFupUwlI=
