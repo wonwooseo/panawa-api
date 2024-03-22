@@ -1,28 +1,33 @@
 package controller
 
+// admin
+
+type Version struct {
+	Version   string
+	BuildTime string
+}
+
+// price
+
+type Price struct {
+	Low     int `json:"low"`
+	Average int `json:"average"`
+	High    int `json:"high"`
+}
+
 type TodayPrice struct {
-	AveragePrice   int    `json:"average_price"`
+	Price
 	LastUpdateTime string `json:"last_update_time"`
 }
 
 type PricePerDate struct {
-	Date         string `json:"date"`
-	AveragePrice int    `json:"average_price"`
-}
-
-type RegionData struct {
-	Name string `json:"name"`
-	Code string `json:"code"`
-}
-
-type PricePerMarket struct {
-	Market       string `json:"market"`
-	AveragePrice int    `json:"average_price"`
+	Price
+	Date string `json:"date"`
 }
 
 type PricePerRegion struct {
-	AveragePrice int                       `json:"average_price"`
-	PerMarket    map[string]PricePerMarket `json:"per_market"`
+	Price
+	PerMarket map[string]Price `json:"per_market"`
 }
 
 type Error struct {

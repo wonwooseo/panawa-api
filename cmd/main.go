@@ -14,17 +14,13 @@ import (
 	"github.com/wonwooseo/panawa-api/router"
 )
 
-var (
-	Version   = ""
-	BuildTime = ""
-)
-
 func main() {
-	logger := log.Logger.With().Str("caller", "main").Logger()
+	baseLogger := log.Logger
+	logger := baseLogger.With().Str("caller", "main").Logger()
 
 	srv := &http.Server{
 		Addr:         ":80",
-		Handler:      router.NewRouter(Version, BuildTime),
+		Handler:      router.NewRouter(baseLogger),
 		WriteTimeout: 30 * time.Second,
 		ReadTimeout:  30 * time.Second,
 	}
