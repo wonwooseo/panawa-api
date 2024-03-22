@@ -3,8 +3,8 @@ package controller
 // admin
 
 type Version struct {
-	Version   string
-	BuildTime string
+	Version   string `json:"version"`
+	BuildTime string `json:"build_time"`
 }
 
 // price
@@ -28,9 +28,4 @@ type PricePerDate struct {
 type PricePerRegion struct {
 	Price
 	PerMarket map[string]Price `json:"per_market"`
-}
-
-type Error struct {
-	Code    string `json:"code"`
-	Message string `json:"message"`
 }

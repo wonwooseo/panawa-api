@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -10,6 +9,7 @@ import (
 
 	"github.com/wonwooseo/panawa-api/code"
 	"github.com/wonwooseo/panawa-api/pkg/db"
+	rerr "github.com/wonwooseo/panawa-api/router/errors"
 )
 
 type PriceController struct {
@@ -44,23 +44,18 @@ const (
 )
 
 func (c *PriceController) TodayPriceEndpoint(ctx *gin.Context) {
+	now := time.Now().UTC().In(c.serverTZ)
+
 	itemCode := ctx.DefaultQuery(queryKeyItemCode, c.defaultItemCode)
 	if _, ok := c.itemCodeResolver.ResolveCode(itemCode); !ok {
-		ctx.JSON(http.StatusBadRequest, Error{
-			Code:    "1001",
-			Message: fmt.Sprintf("unknown item code: %s", itemCode),
-		})
+		ctx.JSON(rerr.NewUnknownItemError(itemCode))
 		return
 	}
-	now := time.Now().UTC().In(c.serverTZ)
 
 	price, err := c.repo.GetDatePrice(ctx, now, itemCode)
 	if err != nil {
 		c.logger.Error().Err(err).Str("item_code", itemCode).Msg("failed to get price")
-		ctx.JSON(http.StatusInternalServerError, Error{
-			Code:    "0000",
-			Message: "internal server error",
-		})
+		ctx.JSON(rerr.NewInternalServerError())
 		return
 	}
 
@@ -85,10 +80,7 @@ func (c *PriceController) PriceTrendEndpoint(ctx *gin.Context) {
 
 	itemCode := ctx.DefaultQuery(queryKeyItemCode, c.defaultItemCode)
 	if _, ok := c.itemCodeResolver.ResolveCode(itemCode); !ok {
-		ctx.JSON(http.StatusBadRequest, Error{
-			Code:    "1001",
-			Message: fmt.Sprintf("unknown item code: %s", itemCode),
-		})
+		ctx.JSON(rerr.NewUnknownItemError(itemCode))
 		return
 	}
 	window := ctx.DefaultQuery(queryKeyTrendWindow, trendWindowWeek)
@@ -99,20 +91,14 @@ func (c *PriceController) PriceTrendEndpoint(ctx *gin.Context) {
 	case trendWindowMonth:
 		sTime = now.AddDate(0, -1, 0)
 	default:
-		ctx.JSON(http.StatusBadRequest, Error{
-			Code:    "1000",
-			Message: fmt.Sprintf("unsupported window: %s", window),
-		})
+		ctx.JSON(rerr.NewInvalidQueryParamError(queryKeyTrendWindow, window))
 		return
 	}
 
 	prices, err := c.repo.GetDateRangePrices(ctx, sTime, now, itemCode)
 	if err != nil {
 		c.logger.Error().Err(err).Str("item_code", itemCode).Msg("failed to get prices")
-		ctx.JSON(http.StatusInternalServerError, Error{
-			Code:    "0000",
-			Message: "internal server error",
-		})
+		ctx.JSON(rerr.NewInternalServerError())
 		return
 	}
 
@@ -140,37 +126,25 @@ func (c *PriceController) RegionalPriceEndpoint(ctx *gin.Context) {
 
 	itemCode := ctx.DefaultQuery(queryKeyItemCode, c.defaultItemCode)
 	if _, ok := c.itemCodeResolver.ResolveCode(itemCode); !ok {
-		ctx.JSON(http.StatusBadRequest, Error{
-			Code:    "1001",
-			Message: fmt.Sprintf("unknown item code: %s", itemCode),
-		})
+		ctx.JSON(rerr.NewUnknownItemError(itemCode))
 		return
 	}
 	regionCode := ctx.Query(queryKeyRegion)
 	if _, ok := c.regionCodeResolver.ResolveCode(regionCode); !ok {
-		ctx.JSON(http.StatusBadRequest, Error{
-			Code:    "1002",
-			Message: fmt.Sprintf("unknown region code: %s", regionCode),
-		})
+		ctx.JSON(rerr.NewUnknownRegionError(regionCode))
 		return
 	}
 
 	regionalPrice, err := c.repo.GetRegionalPrice(ctx, now, itemCode, regionCode)
 	if err != nil {
 		c.logger.Error().Err(err).Str("item_code", itemCode).Str("region_code", regionCode).Msg("failed to get regional price")
-		ctx.JSON(http.StatusInternalServerError, Error{
-			Code:    "0000",
-			Message: "internal server error",
-		})
+		ctx.JSON(rerr.NewInternalServerError())
 		return
 	}
 	marketPrices, err := c.repo.GetRegionalMarketPrices(ctx, now, itemCode, regionCode)
 	if err != nil {
 		c.logger.Error().Err(err).Str("item_code", itemCode).Str("region_code", regionCode).Msg("failed to get regional market prices")
-		ctx.JSON(http.StatusInternalServerError, Error{
-			Code:    "0000",
-			Message: "internal server error",
-		})
+		ctx.JSON(rerr.NewInternalServerError())
 		return
 	}
 	perMarket := map[string]Price{}
