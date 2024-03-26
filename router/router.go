@@ -3,12 +3,11 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
-	"github.com/wonwooseo/panawa/pkg/code"
-	"github.com/wonwooseo/panawa/pkg/code/ko"
 
 	"github.com/wonwooseo/panawa-api/pkg/db"
 	"github.com/wonwooseo/panawa-api/pkg/db/mongodb"
 	"github.com/wonwooseo/panawa-api/router/controller"
+	"github.com/wonwooseo/panawa/pkg/code"
 )
 
 func NewRouter(baseLogger zerolog.Logger) *gin.Engine {
@@ -19,9 +18,9 @@ func NewRouter(baseLogger zerolog.Logger) *gin.Engine {
 	// TODO: middlewares?
 
 	// code-locale resolvers
-	var itemCodeResolver code.Resolver = ko.NewItemCodeResolver()
-	var regionCodeResolver code.Resolver = ko.NewRegionCodeResolver()
-	var marketCodeResolver code.Resolver = ko.NewMarketCodeResolver()
+	var itemCodeResolver code.Resolver = code.NewItemCodeResolver()
+	var regionCodeResolver code.Resolver = code.NewRegionCodeResolver()
+	var marketCodeResolver code.Resolver = code.NewMarketCodeResolver()
 
 	// admin endpoints
 	adminCtrl := controller.NewAdminController(baseLogger)
@@ -32,8 +31,8 @@ func NewRouter(baseLogger zerolog.Logger) *gin.Engine {
 	priceCtrl := controller.NewPriceController(baseLogger, repo, itemCodeResolver, regionCodeResolver, marketCodeResolver)
 	price := router.Group("/price")
 	{
-		price.GET("", priceCtrl.TodayPriceEndpoint)
-		price.GET("/", priceCtrl.TodayPriceEndpoint)
+		price.GET("", priceCtrl.LatestPriceEndpoint)
+		price.GET("/", priceCtrl.LatestPriceEndpoint)
 		price.GET("/trend", priceCtrl.PriceTrendEndpoint)
 		price.GET("/region", priceCtrl.RegionalPriceEndpoint)
 	}
