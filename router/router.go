@@ -7,15 +7,14 @@ import (
 	"github.com/wonwooseo/panawa/pkg/code/ko"
 
 	"github.com/wonwooseo/panawa-api/pkg/db"
-	"github.com/wonwooseo/panawa-api/pkg/db/mock"
+	"github.com/wonwooseo/panawa-api/pkg/db/mongodb"
 	"github.com/wonwooseo/panawa-api/router/controller"
 )
 
 func NewRouter(baseLogger zerolog.Logger) *gin.Engine {
 	router := gin.Default()
 
-	// TODO: impl
-	var repo db.Repository = mock.NewMockRepository()
+	var repo db.Repository = mongodb.NewRepository(baseLogger)
 
 	// TODO: middlewares?
 

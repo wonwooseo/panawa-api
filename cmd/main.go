@@ -18,11 +18,12 @@ import (
 
 func main() {
 	cfgF := flag.String("config", "", "path to config file")
+	flag.Parse()
 
 	baseLogger := log.Logger
 	logger := baseLogger.With().Str("caller", "main").Logger()
 
-	viper.AddConfigPath(*cfgF)
+	viper.SetConfigFile(*cfgF)
 	if err := viper.ReadInConfig(); err != nil {
 		logger.Fatal().Err(err).Msg("failed to read in config")
 	}

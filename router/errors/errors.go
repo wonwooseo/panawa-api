@@ -29,3 +29,7 @@ func NewUnknownItemError(code string) (int, *RouterError) {
 func NewUnknownRegionError(code string) (int, *RouterError) {
 	return http.StatusBadRequest, &RouterError{Code: "1002", Message: fmt.Sprintf("unknown region code: %s", code)}
 }
+
+func NewNoPriceDataError() (int, *RouterError) {
+	return http.StatusNotFound, &RouterError{Code: "2000", Message: "price data not found"}
+}

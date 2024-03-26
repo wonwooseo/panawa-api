@@ -1,0 +1,3 @@
+mongodb:
+  url: mongodb://admin:admin@localhost:27017
+  database: panawa
