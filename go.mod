@@ -3,6 +3,7 @@ module github.com/wonwooseo/panawa-api
 go 1.22.0
 
 require (
+	github.com/gin-contrib/cors v1.7.1
 	github.com/gin-gonic/gin v1.9.1
 	github.com/rs/zerolog v1.32.0
 	github.com/spf13/viper v1.18.2

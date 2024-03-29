@@ -1,6 +1,9 @@
 package router
 
 import (
+	"time"
+
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 
@@ -10,12 +13,25 @@ import (
 	"github.com/wonwooseo/panawa/pkg/code"
 )
 
-func NewRouter(baseLogger zerolog.Logger) *gin.Engine {
+func NewRouter(baseLogger zerolog.Logger, corsAllowAll bool) *gin.Engine {
+	logger := baseLogger.With().Str("caller", "router").Logger()
 	router := gin.Default()
 
 	var repo db.Repository = mongodb.NewRepository(baseLogger)
 
-	// TODO: middlewares?
+	// middlewares
+	corsCfg := cors.Config{
+		AllowMethods: []string{"GET"},
+		AllowHeaders: []string{"Content-Type"},
+		MaxAge:       1 * time.Hour,
+	}
+	if corsAllowAll {
+		logger.Warn().Msg("CORS config set to allow all origins")
+		corsCfg.AllowAllOrigins = true
+	} else {
+		corsCfg.AllowOrigins = []string{"http://localhost"} // TBD: domain
+	}
+	router.Use(cors.New(corsCfg))
 
 	// code-locale resolvers
 	var itemCodeResolver code.Resolver = code.NewItemCodeResolver()
@@ -32,7 +48,6 @@ func NewRouter(baseLogger zerolog.Logger) *gin.Engine {
 	price := router.Group("/price")
 	{
 		price.GET("", priceCtrl.LatestPriceEndpoint)
-		price.GET("/", priceCtrl.LatestPriceEndpoint)
 		price.GET("/trend", priceCtrl.PriceTrendEndpoint)
 		price.GET("/region", priceCtrl.RegionalPriceEndpoint)
 	}
