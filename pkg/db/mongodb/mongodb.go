@@ -70,7 +70,7 @@ func (r *Repository) GetDateRangePrices(ctx context.Context, sDate, eDate time.T
 				bson.D{{"date_unix", bson.D{{"$lte", eDate.Unix()}}}},
 			},
 		},
-	}, options.Find().SetSort(bson.D{{"date_unix", -1}}))
+	}, options.Find().SetSort(bson.D{{"date_unix", 1}}))
 	if err != nil {
 		return nil, err
 	}
