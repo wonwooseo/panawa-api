@@ -20,7 +20,6 @@ import (
 func main() {
 	cfgF := flag.String("config", "", "path to config file")
 	portF := flag.Int("port", 80, "port number to listen(default: 80)")
-	corsF := flag.Bool("cors_allow_all", false, "allow all origins for CORS validation")
 	flag.Parse()
 
 	baseLogger := log.Logger
@@ -33,7 +32,7 @@ func main() {
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", *portF),
-		Handler:      router.NewRouter(baseLogger, *corsF),
+		Handler:      router.NewRouter(baseLogger),
 		WriteTimeout: 30 * time.Second,
 		ReadTimeout:  30 * time.Second,
 	}

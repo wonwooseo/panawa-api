@@ -13,8 +13,4 @@ image:
 clean:
 	@-rm $(APP)
 
-# run api server locally
-run: api
-	./api --config=sample-config.yaml --cors_allow_all
-
 .PHONY: build

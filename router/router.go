@@ -6,6 +6,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
+	"github.com/spf13/viper"
 
 	"github.com/wonwooseo/panawa-api/pkg/db"
 	"github.com/wonwooseo/panawa-api/pkg/db/mongodb"
@@ -13,7 +14,7 @@ import (
 	"github.com/wonwooseo/panawa/pkg/code"
 )
 
-func NewRouter(baseLogger zerolog.Logger, corsAllowAll bool) *gin.Engine {
+func NewRouter(baseLogger zerolog.Logger) *gin.Engine {
 	logger := baseLogger.With().Str("caller", "router").Logger()
 	router := gin.Default()
 
@@ -23,14 +24,10 @@ func NewRouter(baseLogger zerolog.Logger, corsAllowAll bool) *gin.Engine {
 	corsCfg := cors.Config{
 		AllowMethods: []string{"GET"},
 		AllowHeaders: []string{"Content-Type"},
+		AllowOrigins: viper.GetStringSlice("cors"),
 		MaxAge:       1 * time.Hour,
 	}
-	if corsAllowAll {
-		logger.Warn().Msg("CORS config set to allow all origins")
-		corsCfg.AllowAllOrigins = true
-	} else {
-		corsCfg.AllowOrigins = []string{"http://localhost"} // TBD: domain
-	}
+	logger.Info().Any("cors_allow_origins", corsCfg.AllowOrigins).Msg("cors allow origins")
 	router.Use(cors.New(corsCfg))
 
 	// code-locale resolvers
