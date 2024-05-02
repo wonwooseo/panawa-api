@@ -15,8 +15,9 @@ type Price struct {
 	High    int `json:"high"`
 }
 
-type TodayPrice struct {
+type LatestPrice struct {
 	Price
+	DateUnix       int64  `json:"date_unix"`
 	LastUpdateTime string `json:"last_update_time"`
 }
 

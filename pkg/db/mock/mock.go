@@ -2,7 +2,6 @@ package mock
 
 import (
 	"context"
-	"time"
 
 	"github.com/wonwooseo/panawa-api/pkg/db/model"
 )
@@ -14,7 +13,7 @@ func NewRepository() *MockRepository {
 	return &MockRepository{}
 }
 
-func (r *MockRepository) GetDatePrice(ctx context.Context, date time.Time, item string) (*model.Price, error) {
+func (r *MockRepository) GetLatestPrice(ctx context.Context, item string) (*model.Price, error) {
 	return &model.Price{
 		ItemCode:       "0000",
 		DateUnix:       1711033200,
@@ -25,7 +24,7 @@ func (r *MockRepository) GetDatePrice(ctx context.Context, date time.Time, item 
 	}, nil
 }
 
-func (r *MockRepository) GetDateRangePrices(ctx context.Context, sDate, eDate time.Time, item string) ([]*model.Price, error) {
+func (r *MockRepository) GetLatestPrices(ctx context.Context, item string, size int64) ([]*model.Price, error) {
 	return []*model.Price{{
 		ItemCode:       "0000",
 		DateUnix:       1711033200,
@@ -57,7 +56,7 @@ func (r *MockRepository) GetDateRangePrices(ctx context.Context, sDate, eDate ti
 	}}, nil
 }
 
-func (r *MockRepository) GetRegionalMarketPrices(ctx context.Context, date time.Time, item, region string) ([]*model.Price, error) {
+func (r *MockRepository) GetLatestRegionalMarketPrices(ctx context.Context, item, region string, dateUnix int64) ([]*model.Price, error) {
 	market1 := "01"
 	market2 := "02"
 	return []*model.Price{{

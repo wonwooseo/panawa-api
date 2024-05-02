@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -44,33 +45,31 @@ const (
 )
 
 func (c *PriceController) LatestPriceEndpoint(ctx *gin.Context) {
-	tzYesterday := time.Now().UTC().In(c.serverTZ).AddDate(0, 0, -1)
-	searchDate := time.Date(tzYesterday.Year(), tzYesterday.Month(), tzYesterday.Day(), 0, 0, 0, 0, c.serverTZ)
-
 	itemCode := ctx.DefaultQuery(queryKeyItemCode, c.defaultItemCode)
 	if _, ok := c.itemCodeResolver.ResolveCode(itemCode); !ok {
 		ctx.JSON(rerr.NewUnknownItemError(itemCode))
 		return
 	}
 
-	price, err := c.repo.GetDatePrice(ctx, searchDate, itemCode)
+	price, err := c.repo.GetLatestPrice(ctx, itemCode)
 	if err != nil {
 		c.logger.Error().Err(err).Str("item_code", itemCode).Msg("failed to get price")
 		ctx.JSON(rerr.NewInternalServerError())
 		return
 	}
 	if price == nil {
-		c.logger.Warn().Str("item_code", itemCode).Msg("latest price is not yet fetched")
+		c.logger.Warn().Str("item_code", itemCode).Msg("no price data")
 		ctx.JSON(rerr.NewNoPriceDataError())
 		return
 	}
 
-	ctx.JSON(http.StatusOK, TodayPrice{
+	ctx.JSON(http.StatusOK, LatestPrice{
 		Price: Price{
 			Low:     price.Low,
 			Average: price.Average,
 			High:    price.High,
 		},
+		DateUnix:       price.DateUnix,
 		LastUpdateTime: price.StringUpdateTimeFmt(time.RFC3339),
 	})
 }
@@ -82,27 +81,24 @@ const (
 )
 
 func (c *PriceController) PriceTrendEndpoint(ctx *gin.Context) {
-	tzYesterday := time.Now().UTC().In(c.serverTZ).AddDate(0, 0, -1)
-	eDate := time.Date(tzYesterday.Year(), tzYesterday.Month(), tzYesterday.Day(), 0, 0, 0, 0, c.serverTZ)
-
 	itemCode := ctx.DefaultQuery(queryKeyItemCode, c.defaultItemCode)
 	if _, ok := c.itemCodeResolver.ResolveCode(itemCode); !ok {
 		ctx.JSON(rerr.NewUnknownItemError(itemCode))
 		return
 	}
 	window := ctx.DefaultQuery(queryKeyTrendWindow, trendWindowWeek)
-	var sDate time.Time
+	var querySize int64
 	switch window {
 	case trendWindowWeek:
-		sDate = eDate.AddDate(0, 0, -7)
+		querySize = 7
 	case trendWindowMonth:
-		sDate = eDate.AddDate(0, -1, 0)
+		querySize = 30
 	default:
 		ctx.JSON(rerr.NewInvalidQueryParamError(queryKeyTrendWindow, window))
 		return
 	}
 
-	prices, err := c.repo.GetDateRangePrices(ctx, sDate, eDate, itemCode)
+	prices, err := c.repo.GetLatestPrices(ctx, itemCode, querySize)
 	if err != nil {
 		c.logger.Error().Err(err).Str("item_code", itemCode).Msg("failed to get prices")
 		ctx.JSON(rerr.NewInternalServerError())
@@ -111,7 +107,7 @@ func (c *PriceController) PriceTrendEndpoint(ctx *gin.Context) {
 
 	res := make([]PricePerDate, len(prices))
 	for i, price := range prices {
-		res[i] = PricePerDate{
+		res[len(prices)-1-i] = PricePerDate{
 			Price: Price{
 				Low:     price.Low,
 				Average: price.Average,
@@ -125,13 +121,11 @@ func (c *PriceController) PriceTrendEndpoint(ctx *gin.Context) {
 }
 
 const (
-	queryKeyRegion = "region_code"
+	queryKeyRegion   = "region_code"
+	queryKeyDateUnix = "date_unix"
 )
 
 func (c *PriceController) RegionalPriceEndpoint(ctx *gin.Context) {
-	tzYesterday := time.Now().UTC().In(c.serverTZ).AddDate(0, 0, -1)
-	searchDate := time.Date(tzYesterday.Year(), tzYesterday.Month(), tzYesterday.Day(), 0, 0, 0, 0, c.serverTZ)
-
 	itemCode := ctx.DefaultQuery(queryKeyItemCode, c.defaultItemCode)
 	if _, ok := c.itemCodeResolver.ResolveCode(itemCode); !ok {
 		ctx.JSON(rerr.NewUnknownItemError(itemCode))
@@ -142,8 +136,14 @@ func (c *PriceController) RegionalPriceEndpoint(ctx *gin.Context) {
 		ctx.JSON(rerr.NewUnknownRegionError(regionCode))
 		return
 	}
+	dateUnix, err := strconv.ParseInt(ctx.Query(queryKeyDateUnix), 10, 64)
+	if err != nil {
+		c.logger.Error().Err(err).Str("item_code", itemCode).Str("region_code", regionCode).Msg("failed to parse dateUnix")
+		ctx.JSON(rerr.NewInvalidQueryParamError(queryKeyDateUnix, ctx.Query(queryKeyDateUnix)))
+		return
+	}
 
-	marketPrices, err := c.repo.GetRegionalMarketPrices(ctx, searchDate, itemCode, regionCode)
+	marketPrices, err := c.repo.GetDateRegionalMarketPrices(ctx, itemCode, regionCode, dateUnix)
 	if err != nil {
 		c.logger.Error().Err(err).Str("item_code", itemCode).Str("region_code", regionCode).Msg("failed to get regional market prices")
 		ctx.JSON(rerr.NewInternalServerError())

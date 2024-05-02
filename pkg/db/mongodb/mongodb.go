@@ -45,11 +45,12 @@ func NewRepository(baseLogger zerolog.Logger) *Repository {
 	}
 }
 
-func (r *Repository) GetDatePrice(ctx context.Context, date time.Time, item string) (*model.Price, error) {
+func (r *Repository) GetLatestPrice(ctx context.Context, item string) (*model.Price, error) {
 	coll := r.cli.Database(r.database).Collection("date_prices")
 
 	var p model.Price
-	if err := coll.FindOne(ctx, bson.D{{"item_code", item}, {"date_unix", date.Unix()}}).Decode(&p); err != nil {
+	opts := options.FindOne().SetSort(bson.D{{"date_unix", -1}})
+	if err := coll.FindOne(ctx, bson.D{{"item_code", item}}, opts).Decode(&p); err != nil {
 		if err == mongo.ErrNoDocuments {
 			return nil, nil
 		}
@@ -59,18 +60,11 @@ func (r *Repository) GetDatePrice(ctx context.Context, date time.Time, item stri
 	return &p, nil
 }
 
-func (r *Repository) GetDateRangePrices(ctx context.Context, sDate, eDate time.Time, item string) ([]*model.Price, error) {
+func (r *Repository) GetLatestPrices(ctx context.Context, item string, size int64) ([]*model.Price, error) {
 	coll := r.cli.Database(r.database).Collection("date_prices")
 
-	cur, err := coll.Find(ctx, bson.D{
-		{"item_code", item},
-		{"$and",
-			bson.A{
-				bson.D{{"date_unix", bson.D{{"$gte", sDate.Unix()}}}},
-				bson.D{{"date_unix", bson.D{{"$lte", eDate.Unix()}}}},
-			},
-		},
-	}, options.Find().SetSort(bson.D{{"date_unix", 1}}))
+	opts := options.Find().SetSort(bson.D{{"date_unix", -1}}).SetLimit(size)
+	cur, err := coll.Find(ctx, bson.D{{"item_code", item}}, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -86,14 +80,15 @@ func (r *Repository) GetDateRangePrices(ctx context.Context, sDate, eDate time.T
 	return ps, nil
 }
 
-func (r *Repository) GetRegionalMarketPrices(ctx context.Context, date time.Time, item, region string) ([]*model.Price, error) {
+func (r *Repository) GetDateRegionalMarketPrices(ctx context.Context, item, region string, dateUnix int64) ([]*model.Price, error) {
 	coll := r.cli.Database(r.database).Collection("regional_market_prices")
 
+	opts := options.Find().SetSort(bson.D{{"market_code", 1}})
 	cur, err := coll.Find(ctx, bson.D{
 		{"item_code", item},
-		{"date_unix", date.Unix()},
+		{"date_unix", dateUnix},
 		{"region_code", region},
-	}, options.Find().SetSort(bson.D{{"market_code", 1}}))
+	}, opts)
 	if err != nil {
 		return nil, err
 	}

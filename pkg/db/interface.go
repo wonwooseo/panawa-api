@@ -2,13 +2,12 @@ package db
 
 import (
 	"context"
-	"time"
 
 	"github.com/wonwooseo/panawa-api/pkg/db/model"
 )
 
 type Repository interface {
-	GetDatePrice(ctx context.Context, date time.Time, item string) (*model.Price, error)
-	GetDateRangePrices(ctx context.Context, sDate, eDate time.Time, item string) ([]*model.Price, error)
-	GetRegionalMarketPrices(ctx context.Context, date time.Time, item, region string) ([]*model.Price, error)
+	GetLatestPrice(ctx context.Context, item string) (*model.Price, error)
+	GetLatestPrices(ctx context.Context, item string, size int64) ([]*model.Price, error)
+	GetDateRegionalMarketPrices(ctx context.Context, item, region string, dateUnix int64) ([]*model.Price, error)
 }
